@@ -14,7 +14,20 @@ var io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
+
     console.log('New client connected!');
+
+    socket.emit('newMessage', {
+        from: 'mike@example.com',
+        to: 'ed@example.com',
+        text: 'Sup dude! What\'s banging?',
+        created: new Date().toDateString()
+    });
+
+    socket.on('createMessage', (email) => {
+        email.created = new Date().toDateString();
+        console.log('createMessage << ', email);
+    });
 
     socket.on('disconnect', () => {
         console.log('Client disconnected!');
