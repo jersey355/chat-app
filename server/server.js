@@ -17,14 +17,28 @@ io.on('connection', (socket) => {
 
     console.log('New client connected!');
 
+    socket.emit('newMessage', {
+        from: 'ADMIN',
+        text: 'Welcome!'
+    });
+
+    socket.broadcast.emit('newMessage', {
+        from: 'ADMIN',
+        text: 'New user joined the chat room!'
+    });
+
     socket.on('createMessage', (message) => {
         message.created = new Date().toDateString();
-        console.log('createMessage << ', message);
         io.emit('newMessage', {
             from: message.from,
             text: message.text,
             created: new Date().toDateString()
         });
+        // socket.broadcast.emit('newMessage', {
+        //     from: message.from,
+        //     text: message.text,
+        //     created: new Date().toDateString()
+        // });
     });
 
     socket.on('disconnect', () => {
