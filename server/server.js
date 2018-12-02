@@ -2,6 +2,8 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
+const { makeMessage } = require('./utils/message');
+
 
 const port = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, '../public');
@@ -17,28 +19,14 @@ io.on('connection', (socket) => {
 
     console.log('New client connected!');
 
-    socket.emit('newMessage', {
-        from: 'ADMIN',
-        text: 'Welcome!'
-    });
+    // send message to client
+    socket.emit('newMessage', makeMessage('ADMIN', 'Welcome!'));
 
-    socket.broadcast.emit('newMessage', {
-        from: 'ADMIN',
-        text: 'New user joined the chat room!'
-    });
+    // broadcast message to all other clients except self
+    socket.broadcast.emit('newMessage', makeMessage('ADMIN', 'New user joined the chat room!'));
 
     socket.on('createMessage', (message) => {
-        message.created = new Date().toDateString();
-        io.emit('newMessage', {
-            from: message.from,
-            text: message.text,
-            created: new Date().toDateString()
-        });
-        // socket.broadcast.emit('newMessage', {
-        //     from: message.from,
-        //     text: message.text,
-        //     created: new Date().toDateString()
-        // });
+        io.emit('newMessage', makeMessage(message.from, message.text));
     });
 
     socket.on('disconnect', () => {
