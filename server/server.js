@@ -25,8 +25,9 @@ io.on('connection', (socket) => {
     // broadcast message to all other clients except self
     socket.broadcast.emit('newMessage', makeMessage('ADMIN', 'New user joined the chat room!'));
 
-    socket.on('createMessage', (message) => {
+    socket.on('createMessage', (message, callback) => {
         io.emit('newMessage', makeMessage(message.from, message.text));
+        callback('createMessage ACK');
     });
 
     socket.on('disconnect', () => {
