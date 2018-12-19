@@ -1,3 +1,4 @@
+const tsFormat = '(h:mm A)';
 var socket = io();
 
 socket.on('connect', function () {
@@ -9,17 +10,17 @@ socket.on('disconnect', function () {
 });
 
 socket.on('newMessage', function (message) {
-    console.log('newMessage >> ', message);
+    var formattedTime = moment(message.created).format(tsFormat);
     var li = jQuery('<li></li>');
-    li.text(`${message.from}: ${message.text}`);
+    li.text(`${formattedTime} ${message.from}: ${message.text}`);
     jQuery('#msg-list').append(li);
 });
 
 socket.on('newLocMessage', function (message) {
-    console.log('newMessage >> ', message);
+    var formattedTime = moment(message.created).format(tsFormat);
     var li = jQuery('<li></li>');
     var a = jQuery('<a target="_blank">My Location</a>');
-    li.text(`${message.from}: `);
+    li.text(`${formattedTime} ${message.from}: `);
     a.attr('href', message.url);
     li.append(a);
     jQuery('#msg-list').append(li);
@@ -28,6 +29,8 @@ socket.on('newLocMessage', function (message) {
 jQuery('#msg-form').on('submit', function (e) {
     e.preventDefault();
     var msgTextBox = '[name=msg]';
+    var msgText = jQuery(msgTextBox).val();
+    if (msgText === '') return; // don't do anything if message is blank
     socket.emit('createMessage', {
         from: 'User',
         text: jQuery(msgTextBox).val()
